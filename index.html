@@ -8,24 +8,30 @@
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      padding: 40px;
-      background: #fef9f6;
+      padding: 40px 20px;
+      background: linear-gradient(135deg, #ffecd2, #fcb69f);
+      background-attachment: fixed;
       font-family: 'Segoe UI', sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
+      min-height: 100vh;
     }
     #wrapper {
       display: flex;
+      flex-direction: row;
+      width: 100%;
       max-width: 800px;
+      aspect-ratio: 4/3;
       border: 2px solid #ddd;
-      border-radius: 12px;
+      border-radius: 16px;
       overflow: hidden;
       box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      background-color: #fffbe6;
     }
     .left, .right {
       width: 50%;
-      height: 400px;
+      height: 100%;
       position: relative;
     }
     .left img {
@@ -37,7 +43,6 @@
       width: 100%;
       height: 100%;
       position: relative;
-      background: #fffbe6;
       text-align: center;
     }
     #message {
@@ -64,6 +69,19 @@
       pointer-events: none;
       z-index: 10;
     }
+
+    /* 🎯 Responsive Layout for Mobile */
+    @media (max-width: 700px) {
+      #wrapper {
+        flex-direction: column;
+        aspect-ratio: auto;
+        width: 90%;
+      }
+      .left, .right {
+        width: 100%;
+        height: 50%;
+      }
+    }
   </style>
 </head>
 <body>
@@ -72,7 +90,7 @@
 
 <div id="wrapper">
   <div class="left">
-    <img src="https://github.com/kistina-grg/scratch-invite/blob/main/fatty-Photoroom.png?raw=true" alt="Your Cat or You" />
+    <img src="https://placekitten.com/400/400" alt="Your Cat or You" />
   </div>
   <div class="right">
     <div id="scratchContainer">
@@ -94,15 +112,21 @@
   const ctx = scratchCanvas.getContext('2d');
   const confettiCtx = confettiCanvas.getContext('2d');
 
-  scratchCanvas.width = container.offsetWidth;
-  scratchCanvas.height = container.offsetHeight;
-  confettiCanvas.width = window.innerWidth;
-  confettiCanvas.height = window.innerHeight;
+  function resizeCanvases() {
+    scratchCanvas.width = container.offsetWidth;
+    scratchCanvas.height = container.offsetHeight;
+    confettiCanvas.width = window.innerWidth;
+    confettiCanvas.height = window.innerHeight;
 
-  // Draw scratch layer
-  ctx.fillStyle = '#bbb';
-  ctx.fillRect(0, 0, scratchCanvas.width, scratchCanvas.height);
-  ctx.globalCompositeOperation = 'destination-out';
+    // Redraw scratch layer
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = '#bbb';
+    ctx.fillRect(0, 0, scratchCanvas.width, scratchCanvas.height);
+    ctx.globalCompositeOperation = 'destination-out';
+  }
+
+  window.addEventListener('resize', resizeCanvases);
+  resizeCanvases();
 
   let isDrawing = false;
   let scratchedPixels = 0;
@@ -124,7 +148,7 @@
     ctx.arc(pos.x, pos.y, 20, 0, Math.PI * 2);
     ctx.fill();
 
-    scratchedPixels += 1250; // estimate, not exact
+    scratchedPixels += 1200;
     if (!confettiStarted && scratchedPixels > totalPixels * 0.4) {
       confettiStarted = true;
       launchConfetti();
@@ -148,7 +172,7 @@
   scratchCanvas.addEventListener('touchend', endDraw);
   scratchCanvas.addEventListener('touchmove', draw);
 
-  // 🎊 Simple Confetti Animation
+  // 🎊 Confetti Animation
   const confetti = [];
   for (let i = 0; i < 150; i++) {
     confetti.push({
@@ -166,7 +190,7 @@
     confetti.forEach(c => {
       confettiCtx.beginPath();
       confettiCtx.fillStyle = c.color;
-      confettiCtx.ellipse(c.x, c.y, c.r, c.r/2, c.tilt, 0, 2 * Math.PI);
+      confettiCtx.ellipse(c.x, c.y, c.r, c.r / 2, c.tilt, 0, 2 * Math.PI);
       confettiCtx.fill();
     });
     updateConfetti();
