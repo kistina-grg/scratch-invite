@@ -6,45 +6,46 @@
   <title>Scratch-Off Party Invite</title>
   <style>
     * { box-sizing: border-box; }
-    body {
+    html, body {
       margin: 0;
-      padding: 40px 20px;
+      padding: 0;
       background: linear-gradient(135deg, #ffecd2, #fcb69f);
-      background-attachment: fixed;
       font-family: 'Segoe UI', sans-serif;
+      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100vh;
     }
+
     #wrapper {
       display: flex;
-      flex-direction: row;
-      width: 100%;
-      max-width: 800px;
-      aspect-ratio: 4/3;
-      border: 2px solid #ddd;
+      width: 90%;
+      max-width: 900px;
+      aspect-ratio: 2 / 1;
       border-radius: 16px;
       overflow: hidden;
       box-shadow: 0 0 20px rgba(0,0,0,0.1);
-      background-color: #fffbe6;
     }
+
     .left, .right {
       width: 50%;
       height: 100%;
       position: relative;
     }
+
     .left img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
+
     .right #scratchContainer {
       width: 100%;
       height: 100%;
       position: relative;
       text-align: center;
     }
+
     #message {
       position: absolute;
       width: 100%;
@@ -56,13 +57,16 @@
       font-size: 18px;
       padding: 20px;
       flex-direction: column;
+      color: #333;
     }
+
     canvas {
       position: absolute;
       top: 0;
       left: 0;
       z-index: 1;
     }
+
     #confettiCanvas {
       position: fixed;
       top: 0; left: 0;
@@ -70,16 +74,17 @@
       z-index: 10;
     }
 
-    /* 🎯 Responsive Layout for Mobile */
+    /* Maintain side-by-side on mobile too */
     @media (max-width: 700px) {
       #wrapper {
-        flex-direction: column;
+        flex-direction: row;
+        flex-wrap: wrap;
         aspect-ratio: auto;
-        width: 90%;
+        height: auto;
       }
       .left, .right {
         width: 100%;
-        height: 50%;
+        height: 50vh;
       }
     }
   </style>
@@ -90,7 +95,7 @@
 
 <div id="wrapper">
   <div class="left">
-    <img src="https://github.com/kistina-grg/scratch-invite/blob/main/fatty2.png?raw=true" alt="Your Cat or You" />
+    <img src="IMG_2897.png" alt="Your Cat or You" />
   </div>
   <div class="right">
     <div id="scratchContainer">
@@ -118,7 +123,6 @@
     confettiCanvas.width = window.innerWidth;
     confettiCanvas.height = window.innerHeight;
 
-    // Redraw scratch layer
     ctx.globalCompositeOperation = 'source-over';
     ctx.fillStyle = '#bbb';
     ctx.fillRect(0, 0, scratchCanvas.width, scratchCanvas.height);
@@ -156,23 +160,30 @@
   }
 
   function startDraw(e) {
+    e.preventDefault();
     isDrawing = true;
     draw(e);
   }
 
-  function endDraw() {
+  function endDraw(e) {
+    e.preventDefault();
     isDrawing = false;
     ctx.beginPath();
   }
 
+  // 🛠️ Fix for iOS touch events
+  ['touchstart', 'touchmove', 'touchend'].forEach(type => {
+    scratchCanvas.addEventListener(type, e => e.preventDefault(), { passive: false });
+  });
+
   scratchCanvas.addEventListener('mousedown', startDraw);
   scratchCanvas.addEventListener('mouseup', endDraw);
   scratchCanvas.addEventListener('mousemove', draw);
-  scratchCanvas.addEventListener('touchstart', startDraw);
-  scratchCanvas.addEventListener('touchend', endDraw);
-  scratchCanvas.addEventListener('touchmove', draw);
+  scratchCanvas.addEventListener('touchstart', startDraw, { passive: false });
+  scratchCanvas.addEventListener('touchend', endDraw, { passive: false });
+  scratchCanvas.addEventListener('touchmove', draw, { passive: false });
 
-  // 🎊 Confetti Animation
+  // 🎊 Confetti
   const confetti = [];
   for (let i = 0; i < 150; i++) {
     confetti.push({
